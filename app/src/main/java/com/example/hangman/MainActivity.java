@@ -3,19 +3,19 @@ package com.example.hangman;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.style.UnderlineSpan;
 import android.view.View;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
+    String answerWord;
+    String guessWord;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        defineButtons();
         runGame();
+        defineButtons();
     }
 
     public void defineButtons(){
@@ -71,46 +71,41 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private void guessLetter(Character letter){
-        /*for (int i=0; i<wordArray.length; i++) {
-            if(letter == wordArray[i]){
-                guessArray[i] = letter;
+    public void guessLetter(Character letter){
+        char[] guessWordArray = guessWord.toCharArray();
+        for (int i=0; i<answerWord.length(); i++) {
+            if(letter == answerWord.charAt(i)){
+                guessWordArray[i] = letter;
             }
-        }*/
+        }
+        guessWord = new String(guessWordArray);
+        TextView guessDisplay = (TextView)findViewById(R.id.guessDisplay);
+        guessDisplay.setText(displayGuessWord());   // Re-displays guess word on the screen.
     }
 
     private void runGame(){
-        TextView guessDisplay = (TextView) findViewById(R.id.guessDisplay);
-        String answerWord = "cab";
-        int wordLength =  stringToCharArray(answerWord).length;
-        char[] wordArray = stringToCharArray(answerWord); //Char array to compare answers to
-        char[] guessArray = new char[wordLength]; //Char Array to display on screen
-        for(int i=0; i<wordLength; i++){
-            guessArray[i] = '_';       //Fills char array with underlines
-        }
-
-
-        guessDisplay.setText(guessArrayToString(guessArray)); //Displays current guessArray to App.
-
+        TextView guessDisplay = (TextView)findViewById(R.id.guessDisplay);
+        setAnswerWord();
+        guessDisplay.setText(displayGuessWord()); //Displays current guessWord to the screen.
     }
 
-    public char[] stringToCharArray(String inputString) {
-        char[] stringToCharArray = inputString.toCharArray();
-        for (char output : stringToCharArray) {
-            System.out.println(output);
+    public void setAnswerWord() {
+        answerWord = "cab"; //TODO: On play selects random word from the wordlist
+        answerWord = answerWord.toUpperCase();
+        guessWord = "";
+        for(int i=0; i<answerWord.length(); i++){
+            guessWord += '_';       //Fills guessWord with underlines equal to size of answerWord
         }
-        return stringToCharArray;
     }
 
-    public String guessArrayToString(char[] guessArray) { //Converts guessArray to String with added spaces.
-        String guessString = "";
-
-        for (int i=0; i<guessArray.length; i++) {
-            guessString += guessArray[i];
-            if(i != guessArray.length-1){
-                guessString += " ";
+    public String displayGuessWord() { //Converts guessWord to String with added spaces.
+        String newGuessString = "";
+        for (int i=0; i<guessWord.length(); i++) {
+            newGuessString += guessWord.charAt(i);
+            if(i != guessWord.length()-1){
+                newGuessString += " ";
             }
         }
-        return guessString;
+        return newGuessString;
     }
 }
