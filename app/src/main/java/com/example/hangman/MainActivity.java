@@ -2,17 +2,29 @@ package com.example.hangman;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private String answerWord; //Correct answer string
     private String guessWord; //User guess string
     private int remainingGuesses; //Amount of failed user guesses before failure.
+    //private String[] dictionary;
+    private ArrayList<String> dictionary = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        readFromWordlist();
         startGame();
         defineButtons();
     }
@@ -204,10 +216,48 @@ public class MainActivity extends AppCompatActivity {
             guessDisplay.setText(displayGuessWord());   // Re-displays guess word on the screen.
         }else{
             remainingGuesses--;
+            ImageView mImageView;
+            mImageView = (ImageView) findViewById(R.id.hangmanImage);
+            switch (remainingGuesses){
+                case 5:
+                    mImageView.setImageResource(R.drawable.hangman_stage_1);
+                    break;
+                case 4:
+                    mImageView.setImageResource(R.drawable.hangman_stage_2);
+                    break;
+                case 3:
+                    mImageView.setImageResource(R.drawable.hangman_stage_3);
+                    break;
+                case 2:
+                    mImageView.setImageResource(R.drawable.hangman_stage_4);
+                    break;
+                case 1:
+                    mImageView.setImageResource(R.drawable.hangman_stage_5);
+                    break;
+                case 0:
+                    mImageView.setImageResource(R.drawable.hangman_stage_6);
+                    break;//TODO: Reveal word on loss
+            }
         }
         if(remainingGuesses == 0){//TODO: Add reset button and text message.
             resetButtons();
             startGame();
+        }
+    }
+
+    private void readFromWordlist(){
+        try {
+            InputStream inputStream = getResources().openRawResource(R.raw.wordlist);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            String eachline = bufferedReader.readLine();
+            int i;
+            while (eachline != null) {
+                // `the words in the file are separated by space`, so to get each words
+                dictionary.add(eachline);
+                eachline = bufferedReader.readLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -216,10 +266,14 @@ public class MainActivity extends AppCompatActivity {
         setAnswerWord();
         remainingGuesses = 6;
         guessDisplay.setText(displayGuessWord()); //Displays current guessWord to the screen.
+        ImageView mImageView;
+        mImageView = (ImageView) findViewById(R.id.hangmanImage);
+        mImageView.setImageResource(R.drawable.hangman_stage_0);
     }
 
     public void setAnswerWord() {
-        answerWord = "abcabcabcabcabcabcabcabc"; //TODO: On play selects random word from the wordlist
+        Random rand = new Random();
+        answerWord = dictionary.get(rand.nextInt(dictionary.size()));
                                         //TODO: Longs words wrap around, so for them, change the text size
         answerWord = answerWord.toUpperCase();
         guessWord = "";
