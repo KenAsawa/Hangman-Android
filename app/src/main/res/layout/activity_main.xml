@@ -7,8 +7,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="40sp"
-        android:layout_gravity="center_horizontal|center_vertical"
-        android:text="" />
+        android:layout_gravity="center_horizontal|center_vertical"/>
 
     <Button
         android:id="@+id/A_button"
@@ -221,7 +220,4 @@
         android:layout_marginLeft="154dp"
         android:layout_marginBottom="46dp"
         android:layout_gravity="center_horizontal|bottom"/>
-
-
-
 </FrameLayout>
