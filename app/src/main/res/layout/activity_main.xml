@@ -26,7 +26,23 @@
         android:textSize="30sp"
         android:layout_gravity="center_horizontal|center_vertical"
         android:layout_marginTop="50dp"/>
-
+    <Button
+        android:id="@+id/hint_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|right"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:text="Hint" />
+    <Button
+        android:id="@+id/replay_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="10dp"
+        android:visibility="invisible"
+        android:clickable="false"
+        android:text="Play Again" />
     <Button
         android:id="@+id/A_button"
         android:layout_width="44dp"

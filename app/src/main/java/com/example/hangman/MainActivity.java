@@ -28,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void defineButtons(){
+        findViewById(R.id.replay_button).setOnClickListener(buttonListener);
+        findViewById(R.id.hint_button).setOnClickListener(buttonListener);
         findViewById(R.id.A_button).setOnClickListener(buttonListener);
         findViewById(R.id.B_button).setOnClickListener(buttonListener);
         findViewById(R.id.C_button).setOnClickListener(buttonListener);
@@ -62,6 +64,18 @@ public class MainActivity extends AppCompatActivity {
             view.setClickable(false);
             view.setVisibility(View.INVISIBLE);
             switch (view.getId()){
+                case R.id.replay_button:
+                    resetButtons();
+                    startGame();
+                    break;
+                case R.id.hint_button:
+                    for(int i=0; i<answerWord.length(); i++){
+                        if(guessWord.charAt(i) != answerWord.charAt(i)) {
+                            guessLetter(Character.toUpperCase(answerWord.charAt(i)));
+                            break;
+                        }
+                    }
+                    break;
                 case R.id.A_button:
                     guessLetter('A');
                     break;
@@ -145,6 +159,8 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void resetButtons(){
+        findViewById(R.id.hint_button).setClickable(true);
+        findViewById(R.id.hint_button).setVisibility(View.VISIBLE);
         findViewById(R.id.A_button).setClickable(true);
         findViewById(R.id.A_button).setVisibility(View.VISIBLE);
         findViewById(R.id.B_button).setClickable(true);
@@ -207,49 +223,47 @@ public class MainActivity extends AppCompatActivity {
         mImageView = (ImageView) findViewById(R.id.hangmanImage);
         fImageView = (ImageView) findViewById(R.id.hangmanFace);
 
-        if(remainingGuesses == 0){
-            resetButtons();
-            fImageView.setVisibility(View.INVISIBLE);
-            startGame();
-        }else {
-            for (int i = 0; i < answerWord.length(); i++) {
-                if (letter == answerWord.charAt(i)) {
-                    guessWordArray[i] = letter;
-                    correctGuess = true;
-                }
+        for (int i = 0; i < answerWord.length(); i++) {
+            if (letter == answerWord.charAt(i)) {
+                guessWordArray[i] = letter;
+                correctGuess = true;
             }
-            if (correctGuess) {
-                guessWord = new String(guessWordArray);
-                guessDisplay.setText(displayGuessWord());   // Re-displays guess word on the screen.
-                if(guessWord.equals(answerWord)){
-                    fImageView.setVisibility(View.VISIBLE);
-                    remainingGuesses=0;
-                }
-            } else {
-                remainingGuesses--;
-                switch (remainingGuesses) {
-                    case 5:
-                        mImageView.setImageResource(R.drawable.hangman_stage_1);
-                        break;
-                    case 4:
-                        mImageView.setImageResource(R.drawable.hangman_stage_2);
-                        break;
-                    case 3:
-                        mImageView.setImageResource(R.drawable.hangman_stage_3);
-                        break;
-                    case 2:
-                        mImageView.setImageResource(R.drawable.hangman_stage_4);
-                        break;
-                    case 1:
-                        mImageView.setImageResource(R.drawable.hangman_stage_5);
-                        break;
-                    case 0:
-                        mImageView.setImageResource(R.drawable.hangman_stage_7);
-                        guessWord = answerWord;
-                        guessDisplay.setText(displayGuessWord());   // Displays answer word on loss.
-                        break;
-                }
+        }
+        if (correctGuess) {
+            guessWord = new String(guessWordArray);
+            guessDisplay.setText(displayGuessWord());   // Re-displays guess word on the screen.
+            if(guessWord.equals(answerWord) && remainingGuesses!=0){
+                fImageView.setVisibility(View.VISIBLE);
+                remainingGuesses=0;
             }
+        } else {
+            remainingGuesses--;
+            switch (remainingGuesses) {
+                case 5:
+                    mImageView.setImageResource(R.drawable.hangman_stage_1);
+                    break;
+                case 4:
+                    mImageView.setImageResource(R.drawable.hangman_stage_2);
+                    break;
+                case 3:
+                    mImageView.setImageResource(R.drawable.hangman_stage_3);
+                    break;
+                case 2:
+                    mImageView.setImageResource(R.drawable.hangman_stage_4);
+                    break;
+                case 1:
+                    mImageView.setImageResource(R.drawable.hangman_stage_5);
+                    break;
+                case 0:
+                    mImageView.setImageResource(R.drawable.hangman_stage_7);
+                    guessWord = answerWord;
+                    guessDisplay.setText(displayGuessWord());   // Displays answer word on loss.
+                    break;
+            }
+        }
+        if(remainingGuesses == 0) {
+            findViewById(R.id.replay_button).setClickable(true);
+            findViewById(R.id.replay_button).setVisibility(View.VISIBLE);
         }
     }
 
@@ -271,16 +285,17 @@ public class MainActivity extends AppCompatActivity {
         TextView guessDisplay = (TextView)findViewById(R.id.guessDisplay);
         setAnswerWord();
         remainingGuesses = 6;
-        guessDisplay.setText(displayGuessWord()); //Displays current guessWord to the screen.
-        ImageView mImageView;
+        ImageView mImageView, fImageView;
+        fImageView = (ImageView) findViewById(R.id.hangmanFace);
+        fImageView.setVisibility(View.INVISIBLE);
         mImageView = (ImageView)findViewById(R.id.hangmanImage);
         mImageView.setImageResource(R.drawable.hangman_stage_0);
+        guessDisplay.setText(displayGuessWord()); //Displays current guessWord to the screen.
     }
 
     public void setAnswerWord() {
         Random rand = new Random();
-        //answerWord = dictionary.get(rand.nextInt(dictionary.size())); //Selects a random word from the dictionary.
-        answerWord = "lime";
+        answerWord = dictionary.get(rand.nextInt(dictionary.size())); //Selects a random word from the dictionary.
         answerWord = answerWord.toUpperCase();
         guessWord = "";
         for(int i=0; i<answerWord.length(); i++){
