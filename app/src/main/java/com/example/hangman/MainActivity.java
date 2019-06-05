@@ -6,7 +6,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,7 +16,6 @@ public class MainActivity extends AppCompatActivity {
     private String answerWord; //Correct answer string
     private String guessWord; //User guess string
     private int remainingGuesses; //Amount of failed user guesses before failure.
-    //private String[] dictionary;
     private ArrayList<String> dictionary = new ArrayList<>();
 
     @Override
@@ -204,55 +202,63 @@ public class MainActivity extends AppCompatActivity {
     public void guessLetter(Character letter){
         char[] guessWordArray = guessWord.toCharArray();
         boolean correctGuess = false;
-        for (int i=0; i<answerWord.length(); i++) {
-            if(letter == answerWord.charAt(i)){
-                guessWordArray[i] = letter;
-                correctGuess = true;
-            }
-        }
-        if(correctGuess){
-            guessWord = new String(guessWordArray);
-            TextView guessDisplay = (TextView)findViewById(R.id.guessDisplay);
-            guessDisplay.setText(displayGuessWord());   // Re-displays guess word on the screen.
-        }else{
-            remainingGuesses--;
-            ImageView mImageView;
-            mImageView = (ImageView) findViewById(R.id.hangmanImage);
-            switch (remainingGuesses){
-                case 5:
-                    mImageView.setImageResource(R.drawable.hangman_stage_1);
-                    break;
-                case 4:
-                    mImageView.setImageResource(R.drawable.hangman_stage_2);
-                    break;
-                case 3:
-                    mImageView.setImageResource(R.drawable.hangman_stage_3);
-                    break;
-                case 2:
-                    mImageView.setImageResource(R.drawable.hangman_stage_4);
-                    break;
-                case 1:
-                    mImageView.setImageResource(R.drawable.hangman_stage_5);
-                    break;
-                case 0:
-                    mImageView.setImageResource(R.drawable.hangman_stage_6);
-                    break;//TODO: Reveal word on loss
-            }
-        }
-        if(remainingGuesses == 0){//TODO: Add reset button and text message.
+        TextView guessDisplay = (TextView) findViewById(R.id.guessDisplay);
+        ImageView mImageView, fImageView;
+        mImageView = (ImageView) findViewById(R.id.hangmanImage);
+        fImageView = (ImageView) findViewById(R.id.hangmanFace);
+
+        if(remainingGuesses == 0){
             resetButtons();
+            fImageView.setVisibility(View.INVISIBLE);
             startGame();
+        }else {
+            for (int i = 0; i < answerWord.length(); i++) {
+                if (letter == answerWord.charAt(i)) {
+                    guessWordArray[i] = letter;
+                    correctGuess = true;
+                }
+            }
+            if (correctGuess) {
+                guessWord = new String(guessWordArray);
+                guessDisplay.setText(displayGuessWord());   // Re-displays guess word on the screen.
+                if(guessWord.equals(answerWord)){
+                    fImageView.setVisibility(View.VISIBLE);
+                    remainingGuesses=0;
+                }
+            } else {
+                remainingGuesses--;
+                switch (remainingGuesses) {
+                    case 5:
+                        mImageView.setImageResource(R.drawable.hangman_stage_1);
+                        break;
+                    case 4:
+                        mImageView.setImageResource(R.drawable.hangman_stage_2);
+                        break;
+                    case 3:
+                        mImageView.setImageResource(R.drawable.hangman_stage_3);
+                        break;
+                    case 2:
+                        mImageView.setImageResource(R.drawable.hangman_stage_4);
+                        break;
+                    case 1:
+                        mImageView.setImageResource(R.drawable.hangman_stage_5);
+                        break;
+                    case 0:
+                        mImageView.setImageResource(R.drawable.hangman_stage_7);
+                        guessWord = answerWord;
+                        guessDisplay.setText(displayGuessWord());   // Displays answer word on loss.
+                        break;
+                }
+            }
         }
     }
 
     private void readFromWordlist(){
         try {
-            InputStream inputStream = getResources().openRawResource(R.raw.wordlist);
+            InputStream inputStream = getResources().openRawResource(R.raw.wordlist_2);
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             String eachline = bufferedReader.readLine();
-            int i;
             while (eachline != null) {
-                // `the words in the file are separated by space`, so to get each words
                 dictionary.add(eachline);
                 eachline = bufferedReader.readLine();
             }
@@ -267,26 +273,26 @@ public class MainActivity extends AppCompatActivity {
         remainingGuesses = 6;
         guessDisplay.setText(displayGuessWord()); //Displays current guessWord to the screen.
         ImageView mImageView;
-        mImageView = (ImageView) findViewById(R.id.hangmanImage);
+        mImageView = (ImageView)findViewById(R.id.hangmanImage);
         mImageView.setImageResource(R.drawable.hangman_stage_0);
     }
 
     public void setAnswerWord() {
         Random rand = new Random();
-        answerWord = dictionary.get(rand.nextInt(dictionary.size()));
-                                        //TODO: Longs words wrap around, so for them, change the text size
+        //answerWord = dictionary.get(rand.nextInt(dictionary.size())); //Selects a random word from the dictionary.
+        answerWord = "lime";
         answerWord = answerWord.toUpperCase();
         guessWord = "";
         for(int i=0; i<answerWord.length(); i++){
-            if(answerWord.charAt(i)=='-'){
-                guessWord += '-';       //Fills guessWord with dash if in word.
+            if(!Character.isLetter(answerWord.charAt(i))){
+                guessWord += answerWord.charAt(i);       //Non-letter characters are revealed if in word.
             }else{
                 guessWord += '_';       //Fills guessWord with underlines equal to size of answerWord
             }
         }
     }
 
-    public String displayGuessWord() { //Converts guessWord to String with added spaces.
+    public String displayGuessWord() { //Converts guessWord to String with added spaces for the screen to display.
         String newGuessString = "";
         for (int i=0; i<guessWord.length(); i++) {
             newGuessString += guessWord.charAt(i);
